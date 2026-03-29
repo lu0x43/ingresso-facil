@@ -2,17 +2,18 @@ import axios from "axios";
 
 // 1. Configuração da URL base do seu Backend
 export const api = axios.create({
-  baseURL: "https://localhost:7082", // Sua porta HTTPS padrão do .NET
+  baseURL: import.meta.env.VITE_API_URL || 'https://localhost:7082', 
 });
 
 // 2. Interceptor para enviar o Token JWT automaticamente
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`; // O .NET espera esse formato
   }
   return config;
 });
+
 
 // 3. (Opcional) Interceptor para tratar erros globais (ex: 401 não autorizado)
 api.interceptors.response.use(
