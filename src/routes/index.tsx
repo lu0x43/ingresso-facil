@@ -6,20 +6,27 @@ import { EventDetails } from "../pages/EventDetails/EventDetails";
 import { Registrations } from "../pages/Registrations/Registrations";
 import { MyRegistrations } from "../pages/MyRegistrations/MyRegistrations";
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
   const token = localStorage.getItem("token");
 
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 export const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-
       <Route path="/login" element={<Login />} />
       <Route path="/event-details/:id" element={<EventDetails />} />
-      <Route path="/register-event/:id" element={<Registrations />} />
+
+      <Route
+        path="/register-event/:id"
+        element={
+          <PrivateRoute>
+            <Registrations />
+          </PrivateRoute>
+        }
+      />
 
       <Route
         path="/dashboard"
@@ -39,7 +46,7 @@ export const AppRoutes = () => {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

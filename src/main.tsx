@@ -3,11 +3,14 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App";
+import { AuthModalProvider } from "./contexts/AuthModalContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthModalProvider>
+        <App />
+      </AuthModalProvider>
     </BrowserRouter>
   </StrictMode>
 );

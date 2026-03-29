@@ -2,42 +2,68 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, LogIn, LogOut, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import LogoRed from "../../assets/icons/icon-corpus-red.svg";
+import { useAuthModal } from "../../contexts/AuthModalContext";
+import { api } from "../../api/api";
 
 const Header = () => {
   const navigate = useNavigate();
-
   const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem("token")
   );
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  const { isOpen, mode, openLogin, openRegister, closeModal } = useAuthModal();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const loginWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken(null);
-    setIsLoginOpen(false);
+    closeModal();
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!email.trim() || !password.trim()) {
       alert("Preencha e-mail e senha.");
       return;
     }
-
-    // TODO: trocar depois pela chamada real da API
-    const fakeToken = "token-fake";
-
-    localStorage.setItem("token", fakeToken);
-    setToken(fakeToken);
-
-    setEmail("");
-    setPassword("");
-    setIsLoginOpen(false);
+  
+    try {
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
+  
+      const token = response.data.token;
+  
+      localStorage.setItem("token", token);
+      setToken(token);
+  
+      setEmail("");
+      setPassword("");
+      closeModal();
+  
+    } catch (err: unknown) {
+      console.error(err);
+    
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err
+      ) {
+        const error = err as { response?: { status?: number } };
+    
+        if (error.response?.status === 401) {
+          alert("Credenciais inválidas.");
+          return;
+        }
+      }
+    
+      alert("Erro ao fazer login.");
+    }
   };
 
   useEffect(() => {
@@ -46,16 +72,15 @@ const Header = () => {
         loginWrapperRef.current &&
         !loginWrapperRef.current.contains(event.target as Node)
       ) {
-        setIsLoginOpen(false);
+        closeModal();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [closeModal]);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -91,33 +116,24 @@ const Header = () => {
             </div>
           ) : (
             <div className="relative" ref={loginWrapperRef}>
-              <div className="flex items-center gap-4">
-                <button
-                  
-                  className="flex items-center gap-2 bg- border border-[#e12f38] text-[#e12f38] px-5 py-2.5 font-bold hover:bg-[#F83B45] cursor-pointer transition-all rounded-md"
-                  type="button"
-                >
-                  <LogIn size={18} />
-                  Cadastre-se
-                </button>
+              <button
+                onClick={openLogin}
+                className="flex items-center gap-2 bg-[#F83B45] text-white px-5 py-2.5 font-bold hover:bg-[#e12f38] transition-all rounded-md"
+                type="button"
+              >
+                <LogIn size={18} />
+                Entrar
+              </button>
 
-                <button
-                  onClick={() => setIsLoginOpen((prev) => !prev)}
-                  className="flex items-center gap-2 bg-[#e12f38] text-white px-5 py-2.5 font-bold hover:bg-[#F83B45] cursor-pointer transition-all rounded-md"
-                  type="button"
-                >
-                  <LogIn size={18} />
-                  Entrar
-                </button>
-              </div>
-
-              {isLoginOpen && (
+              {isOpen && (
                 <div className="absolute right-0 mt-3 w-80 rounded-xl border border-gray-200 bg-white shadow-xl p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-gray-900">Login</h2>
+                    <h2 className="text-lg font-bold text-gray-900">
+                      {mode === "login" ? "Entrar" : "Criar conta"}
+                    </h2>
 
                     <button
-                      onClick={() => setIsLoginOpen(false)}
+                      onClick={closeModal}
                       className="text-gray-400 hover:text-gray-700"
                       type="button"
                     >
@@ -125,48 +141,73 @@ const Header = () => {
                     </button>
                   </div>
 
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        E-mail
-                      </label>
+                  {mode === "login" ? (
+                    <form onSubmit={handleLogin} className="space-y-4">
                       <input
-                        id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-red-500"
-                        placeholder="seuemail@exemplo.com"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                        placeholder="Seu e-mail"
                       />
-                    </div>
 
-                    <div>
-                      <label
-                        htmlFor="password"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Senha
-                      </label>
                       <input
-                        id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-red-500"
-                        placeholder="********"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                        placeholder="Sua senha"
                       />
-                    </div>
 
-                    <button
-                      type="submit"
-                      className="w-full rounded-lg bg-[#F83B45] px-4 py-2.5 text-white font-semibold hover:bg-[#e12f38] cursor-pointer transition-colors"
-                    >
-                      Entrar
-                    </button>
-                  </form>
+                      <button
+                        type="submit"
+                        className="w-full rounded-lg bg-[#F83B45] px-4 py-2.5 text-white font-semibold hover:bg-[#e12f38] transition-colors"
+                      >
+                        Entrar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={openRegister}
+                        className="w-full text-sm text-gray-600 hover:text-[#F83B45]"
+                      >
+                        Não tem conta? Cadastre-se
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="space-y-4">
+                      <input
+                        type="text"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                        placeholder="Seu nome"
+                      />
+                      <input
+                        type="email"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                        placeholder="Seu e-mail"
+                      />
+                      <input
+                        type="password"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                        placeholder="Crie uma senha"
+                      />
+
+                      <button
+                        type="button"
+                        className="w-full rounded-lg bg-[#F83B45] px-4 py-2.5 text-white font-semibold hover:bg-[#e12f38] transition-colors"
+                      >
+                        Criar conta
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={openLogin}
+                        className="w-full text-sm text-gray-600 hover:text-[#F83B45]"
+                      >
+                        Já tem conta? Entrar
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
