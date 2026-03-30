@@ -1,21 +1,23 @@
-import { api } from '../api/api';
-import { Event } from '../types';
+import { api } from "../api/api";
+import { Event, EventOption } from "../types";
 
 export const eventService = {
-  // Busca todos os eventos ativos
   getAll: async (): Promise<Event[]> => {
-    const response = await api.get('/events');
+    const response = await api.get("/events");
     return response.data;
   },
 
-  // Busca detalhes de um evento pelo ID
   getById: async (id: string): Promise<Event> => {
     const response = await api.get(`/events/${id}`);
     return response.data;
   },
-  
-  // (Opcional - Admin) Deletar evento
+
+  getOptionsByEvent: async (eventId: string): Promise<EventOption[]> => {
+    const response = await api.get(`/event-options/event/${eventId}`);
+    return response.data;
+  },
+
   delete: async (id: string): Promise<void> => {
     await api.delete(`/events/${id}`);
-  }
+  },
 };

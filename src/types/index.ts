@@ -1,9 +1,11 @@
 export interface EventOption {
   id: string;
+  eventId: string;
   name: string;
   category?: string;
   distanceKm?: number;
   price: number;
+  maxSlots?: number;
 }
 
 export interface Event {
@@ -11,14 +13,10 @@ export interface Event {
   title: string;
   startDate: string;
   endDate: string;
-
-  price: number;
-
   description?: string;
   location?: string;
   imageUrl?: string;
   availableSpots?: number;
   isActive?: boolean;
-
   options?: EventOption[];
 }
