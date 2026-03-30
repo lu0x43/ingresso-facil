@@ -11,7 +11,7 @@ const Header = () => {
     localStorage.getItem("token")
   );
 
-  const { isOpen, mode, openLogin, openRegister, closeModal } = useAuthModal();
+  const { isOpen, mode, openLogin, closeModal } = useAuthModal();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -155,73 +155,41 @@ const Header = () => {
                     </button>
                   </div>
 
-                  {mode === "login" ? (
-                    <form onSubmit={handleLogin} className="space-y-4">
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                        placeholder="Seu e-mail"
-                      />
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                      placeholder="Seu e-mail"
+                    />
 
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                        placeholder="Sua senha"
-                      />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                      placeholder="Sua senha"
+                    />
 
-                      <button
-                        type="submit"
-                        className="w-full rounded-lg bg-[#F83B45] px-4 py-2.5 text-white font-semibold hover:bg-[#e12f38] transition-colors"
-                      >
-                        Entrar
-                      </button>
+                    <button
+                      type="submit"
+                      className="w-full rounded-lg bg-[#F83B45] px-4 py-2.5 text-white font-semibold hover:bg-[#e12f38] transition-colors"
+                    >
+                      Entrar
+                    </button>
 
-                      <button
-                        type="button"
-                        onClick={openRegister}
-                        className="w-full text-sm text-gray-600 hover:text-[#F83B45]"
-                      >
-                        Não tem conta? Cadastre-se
-                      </button>
-                    </form>
-                  ) : (
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                        placeholder="Seu nome"
-                      />
-                      <input
-                        type="email"
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                        placeholder="Seu e-mail"
-                      />
-                      <input
-                        type="password"
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                        placeholder="Crie uma senha"
-                      />
-
-                      <button
-                        type="button"
-                        className="w-full rounded-lg bg-[#F83B45] px-4 py-2.5 text-white font-semibold hover:bg-[#e12f38] transition-colors"
-                      >
-                        Criar conta
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={openLogin}
-                        className="w-full text-sm text-gray-600 hover:text-[#F83B45]"
-                      >
-                        Já tem conta? Entrar
-                      </button>
-                    </div>
-                  )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeModal();
+                        navigate("/cadastro");
+                      }}
+                      className="w-full text-sm text-gray-600 hover:text-[#F83B45]"
+                    >
+                      Não tem conta? Cadastre-se
+                    </button>
+                  </form>
                 </div>
               )}
             </div>
