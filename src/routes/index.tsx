@@ -4,6 +4,7 @@ import { Dashboard } from "../pages/Dashboard/Dashboard";
 import { EventDetails } from "../pages/EventDetails/EventDetails";
 import { Registrations } from "../pages/Registrations/Registrations";
 import { MyAccount } from "../pages/MyAccount/MyAccount";
+import { MyRegistrations } from "../pages/MyRegistrations/MyRegistrations";
 import { AdminEditEvent } from "../pages/AdminEditEvent/AdminEditEvent";
 import { UserRegister } from "../pages/UserRegister/UserRegister";
 
@@ -62,6 +63,15 @@ export const AppRoutes = () => {
         element={
           <PrivateRoute>
             <MyAccount />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/minhas-inscricoes"
+        element={
+          <PrivateRoute>
+            <MyRegistrations />
           </PrivateRoute>
         }
       />

@@ -1,12 +1,8 @@
 import { createContext, useContext, useState } from "react";
 
-type AuthMode = "login" | "register";
-
 type AuthModalContextType = {
   isOpen: boolean;
-  mode: AuthMode;
   openLogin: () => void;
-  openRegister: () => void;
   closeModal: () => void;
 };
 
@@ -18,15 +14,8 @@ export const AuthModalProvider = ({
   children: React.ReactNode;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState<AuthMode>("login");
 
   const openLogin = () => {
-    setMode("login");
-    setIsOpen(true);
-  };
-
-  const openRegister = () => {
-    setMode("register");
     setIsOpen(true);
   };
 
@@ -36,7 +25,7 @@ export const AuthModalProvider = ({
 
   return (
     <AuthModalContext.Provider
-      value={{ isOpen, mode, openLogin, openRegister, closeModal }}
+      value={{ isOpen, openLogin, closeModal }}
     >
       {children}
     </AuthModalContext.Provider>
