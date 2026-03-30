@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, LogIn, LogOut, X } from "lucide-react";
+import { User, LogIn, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import LogoRed from "../../assets/icons/icon-corpus-red.svg";
 import { useAuthModal } from "../../contexts/AuthModalContext";
@@ -16,6 +16,12 @@ const Header = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const loginWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [user, setUser] = useState<{ name: string } | null>(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const [openMenu, setOpenMenu] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -25,43 +31,40 @@ const Header = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!email.trim() || !password.trim()) {
       alert("Preencha e-mail e senha.");
       return;
     }
-  
+
     try {
       const response = await api.post("/auth/login", {
         email,
         password,
       });
-  
-      const token = response.data.token;
-  
+
+      const { token, user } = response.data;
+
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
       setToken(token);
-  
+      setUser(user);
       setEmail("");
       setPassword("");
       closeModal();
-  
     } catch (err: unknown) {
       console.error(err);
-    
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err
-      ) {
+
+      if (typeof err === "object" && err !== null && "response" in err) {
         const error = err as { response?: { status?: number } };
-    
+
         if (error.response?.status === 401) {
           alert("Credenciais inválidas.");
           return;
         }
       }
-    
+
       alert("Erro ao fazer login.");
     }
   };
@@ -94,25 +97,36 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-4">
-          {token ? (
-            <div className="flex items-center gap-4">
+          {token && user ? (
+            <div className="relative">
               <button
-                onClick={() => navigate("/dashboard")}
-                className="flex items-center gap-2 text-sm font-semibold text-white hover:text-red-400 transition-colors"
-                type="button"
+                onClick={() => setOpenMenu((prev) => !prev)}
+                className="flex items-center gap-2 text-white font-semibold"
               >
                 <User size={18} />
-                Minha Conta
+                {user.name.split(" ")[0]}
               </button>
 
-              <button
-                onClick={handleLogout}
-                className="p-2 text-gray-300 hover:text-red-500 transition-colors"
-                title="Sair"
-                type="button"
-              >
-                <LogOut size={20} />
-              </button>
+              {openMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border">
+                  <button
+                    onClick={() => {
+                      navigate("/minha-conta");
+                      setOpenMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                  >
+                    Minha conta
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                  >
+                    Sair
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="relative" ref={loginWrapperRef}>
