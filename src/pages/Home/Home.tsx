@@ -14,8 +14,22 @@ export const Home = () => {
     const loadEvents = async () => {
       try {
         setError(null);
+
         const data = await eventService.getAll();
-        setEvents(data);
+
+        const eventsWithOptions = await Promise.all(
+          data.map(async (event) => {
+            try {
+              const options = await eventService.getOptionsByEvent(event.id);
+              return { ...event, options };
+            } catch (error) {
+              console.error(`Erro ao carregar opções do evento ${event.id}:`, error);
+              return { ...event, options: [] };
+            }
+          })
+        );
+
+        setEvents(eventsWithOptions);
       } catch (error) {
         console.error("Erro ao carregar eventos:", error);
         setError("Não foi possível carregar os eventos.");
@@ -26,6 +40,11 @@ export const Home = () => {
 
     loadEvents();
   }, []);
+
+  const getStartingPrice = (event: Event) => {
+    if (!event.options || event.options.length === 0) return null;
+    return Math.min(...event.options.map((option) => option.price));
+  };
 
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString("pt-BR");
@@ -57,47 +76,60 @@ export const Home = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-gray-900">
-          Próximos Eventos
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-900">Próximos Eventos</h1>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <div
-            key={event.id}
-            onClick={() => navigate(`/event-details/${event.id}`)}
-            className="bg-white rounded-xl shadow-sm border cursor-pointer hover:shadow-md transition"
-          >
-            <div className="h-40 bg-red-600 flex items-center justify-center">
-              <span className="text-white text-4xl opacity-20">
-                {event.title.charAt(0)}
-              </span>
+      <div className="flex flex-wrap gap-6 justify-center">
+        {events.map((event) => {
+          const startingPrice = getStartingPrice(event);
+
+          return (
+            <div
+              key={event.id}
+              onClick={() => navigate(`/event-details/${event.id}`)}
+              className="bg-white rounded-xl shadow-sm border border-[#F83B45] cursor-pointer hover:shadow-md transition w-full"
+            >
+              <div className="h-40 flex items-center justify-center rounded-t-xl overflow-hidden">
+                {event.imageUrl ? (
+                  <img
+                    src={event.imageUrl}
+                    alt={event.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl font-bold text-gray-300 bg-gray-400 w-full h-full flex items-center justify-center rounded-t-xl">
+                    {event.title.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              <div className="p-4">
+                <h3 className="font-bold text-lg">{event.title}</h3>
+
+                <p className="text-sm text-gray-500 mt-2">
+                  {formatDate(event.startDate)}
+                </p>
+
+                <p className="text-red-600 font-bold mt-2">
+                  {startingPrice !== null
+                    ? `A partir de ${formatPrice(startingPrice)}`
+                    : "Consulte valores"}
+                </p>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/event-details/${event.id}`);
+                  }}
+                  className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg"
+                  type="button"
+                >
+                  Inscrever-se
+                </button>
+              </div>
             </div>
-
-            <div className="p-4">
-              <h3 className="font-bold text-lg">{event.title}</h3>
-
-              <p className="text-sm text-gray-500 mt-2">
-                {formatDate(event.startDate)}
-              </p>
-
-              <p className="text-red-600 font-bold mt-2">
-                {formatPrice(event.price)}
-              </p>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/event-details/${event.id}`);
-                }}
-                className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg"
-              >
-                Inscrever-se
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Dashboard } from "../pages/Dashboard/Dashboard";
 import { EventDetails } from "../pages/EventDetails/EventDetails";
 import { Registrations } from "../pages/Registrations/Registrations";
 import { MyRegistrations } from "../pages/MyRegistrations/MyRegistrations";
+import { MyAccount } from "../pages/MyAccount/MyAccount";
 
 const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
   const token = localStorage.getItem("token");
@@ -18,6 +19,8 @@ export const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/event-details/:id" element={<EventDetails />} />
+
+      <Route path="/minha-conta" element={<MyAccount />} />
 
       <Route
         path="/register-event/:id"
