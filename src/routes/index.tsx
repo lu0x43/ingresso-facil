@@ -6,6 +6,7 @@ import { EventDetails } from "../pages/EventDetails/EventDetails";
 import { Registrations } from "../pages/Registrations/Registrations";
 import { MyRegistrations } from "../pages/MyRegistrations/MyRegistrations";
 import { MyAccount } from "../pages/MyAccount/MyAccount";
+import { AdminEditEvent } from "../pages/AdminEditEvent/AdminEditEvent";
 
 const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
   const token = localStorage.getItem("token");
@@ -48,6 +49,8 @@ export const AppRoutes = () => {
           </PrivateRoute>
         }
       />
+
+    <Route path="/admin/events/edit/:id" element={<AdminEditEvent />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
