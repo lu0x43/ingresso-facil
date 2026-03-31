@@ -1,3 +1,8 @@
+export interface EventImage {
+  imageUrl: string;
+  description?: string;
+}
+
 export interface EventOption {
   id: string;
   eventId: string;
@@ -15,8 +20,10 @@ export interface Event {
   endDate: string;
   description?: string;
   location?: string;
+  coverUrl?: string;
   imageUrl?: string;
-  availableSpots?: number;
-  isActive?: boolean;
+  organizerId?: string;
+  createdAt?: string;
   options?: EventOption[];
+  images?: EventImage[];
 }

@@ -19,6 +19,9 @@ export const EventDetails = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [options, setOptions] = useState<EventOption[]>([]);
   const [selectedOptionId, setSelectedOptionId] = useState<string>("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageDescription, setSelectedImageDescription] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,16 +50,24 @@ export const EventDetails = () => {
       try {
         setError(null);
 
-        const [eventData, eventOptions] = await Promise.all([
-          eventService.getById(id),
-          eventService.getOptionsByEvent(id),
-        ]);
+        const eventData = await eventService.getById(id);
 
         setEvent(eventData);
-        setOptions(eventOptions);
+        setOptions(eventData.options ?? []);
 
-        if (eventOptions.length > 0) {
-          setSelectedOptionId(eventOptions[0].id);
+        if (eventData.options && eventData.options.length > 0) {
+          setSelectedOptionId(eventData.options[0].id);
+        }
+
+        if (eventData.images && eventData.images.length > 0) {
+          setSelectedImage(eventData.images[0].imageUrl);
+          setSelectedImageDescription(eventData.images[0].description ?? null);
+        } else if (eventData.coverUrl) {
+          setSelectedImage(eventData.coverUrl);
+          setSelectedImageDescription(null);
+        } else if (eventData.imageUrl) {
+          setSelectedImage(eventData.imageUrl);
+          setSelectedImageDescription(null);
         }
       } catch (err) {
         console.error("Erro ao carregar detalhes do evento:", err);
@@ -143,24 +154,58 @@ export const EventDetails = () => {
   return (
     <section className="max-w-6xl mx-auto px-4 py-12">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="h-72 flex items-center justify-center bg-red-600">
-          {event.imageUrl ? (
-            <img
-              src={event.imageUrl}
-              alt={event.title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="text-white text-6xl font-bold opacity-20">
-              {event.title?.charAt(0).toUpperCase() || "E"}
-            </span>
-          )}
-        </div>
-
         <div className="p-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="w-full">
+                <div className="h-80 bg-gray-100 flex items-center justify-center overflow-hidden rounded-xl border border-gray-200">
+                  {selectedImage ? (
+                    <img
+                      src={selectedImage}
+                      alt={event.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-400 text-6xl font-bold opacity-30">
+                      {event.title?.charAt(0).toUpperCase() || "E"}
+                    </span>
+                  )}
+                </div>
+
+                {selectedImageDescription && (
+                  <p className="mt-3 text-sm text-gray-500">
+                    {selectedImageDescription}
+                  </p>
+                )}
+
+                {event.images && event.images.length > 1 && (
+                  <div className="flex gap-3 mt-4 overflow-x-auto pb-1">
+                    {event.images.map((img, index) => (
+                      <button
+                        key={`${img.imageUrl}-${index}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedImage(img.imageUrl);
+                          setSelectedImageDescription(img.description ?? null);
+                        }}
+                        className={`h-20 w-28 rounded-lg overflow-hidden border-2 shrink-0 ${
+                          selectedImage === img.imageUrl
+                            ? "border-red-600"
+                            : "border-transparent"
+                        }`}
+                      >
+                        <img
+                          src={img.imageUrl}
+                          alt={img.description || `Imagem ${index + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
 
                 {isAdmin && (
