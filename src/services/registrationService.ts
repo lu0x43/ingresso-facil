@@ -1,5 +1,3 @@
-// src/services/registrationService.ts
-
 import { api } from "../api/api";
 
 export interface CreateRegistrationPayload {
@@ -9,6 +7,7 @@ export interface CreateRegistrationPayload {
   email: string;
   acceptedTerms: boolean;
   gender?: string;
+  cpf?: string;
   birthDate?: string;
   guardianName?: string;
   address?: string;
@@ -31,8 +30,10 @@ export interface CreateRegistrationResponse {
 }
 
 export const registrationService = {
-  async create(data: CreateRegistrationPayload): Promise<CreateRegistrationResponse> {
+  async create(
+    data: CreateRegistrationPayload
+  ): Promise<CreateRegistrationResponse> {
     const response = await api.post("/registrations", data);
     return response.data;
-  }
+  },
 };

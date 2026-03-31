@@ -12,11 +12,33 @@ type StoredUser = {
   birthDate?: string;
   phone?: string;
   cpf?: string;
+  gender?: string;
 };
 
 type LocationState = {
   selectedOption?: EventOption;
 };
+
+const genderOptions = [
+  { label: "Masculino", value: "MALE" },
+  { label: "Feminino", value: "FEMALE" },
+  // { label: "Outro", value: "OTHER" },
+];
+
+const shirtSizeOptions = [
+  { label: "P (Adulto)", value: "P" },
+  { label: "M (Adulto)", value: "M" },
+  { label: "G (Adulto)", value: "G" },
+  { label: "GG (Adulto)", value: "GG" },
+  { label: "EG (Adulto)", value: "EG" },
+  { label: "4 (Infantil)", value: "KIDS_4" },
+  { label: "6 (Infantil)", value: "KIDS_6" },
+  { label: "8 (Infantil)", value: "KIDS_8" },
+  { label: "10 (Infantil)", value: "KIDS_10" },
+  { label: "12 (Infantil)", value: "KIDS_12" },
+  { label: "14 (Infantil)", value: "KIDS_14" },
+  { label: "16 (Infantil)", value: "KIDS_16" },
+];
 
 export const Registrations = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +64,8 @@ export const Registrations = () => {
     cpf: "",
     birthDate: "",
     phone: "",
+    gender: "",
+    shirtSize: "",
   });
 
   useEffect(() => {
@@ -72,6 +96,7 @@ export const Registrations = () => {
               birthDate: storedUser.birthDate ?? prev.birthDate,
               phone: storedUser.phone ?? prev.phone,
               cpf: storedUser.cpf ?? prev.cpf,
+              gender: storedUser.gender ?? prev.gender,
             }));
           } catch {
             localStorage.removeItem("user");
@@ -92,7 +117,9 @@ export const Registrations = () => {
     loadPage();
   }, [id, navigate, selectedOptionFromState]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -111,7 +138,17 @@ export const Registrations = () => {
     if (submitting) return;
 
     if (!formData.fullName.trim() || !formData.email.trim()) {
-      setSubmitError("Preencha os campos obrigatórios.");
+      setSubmitError("Preencha nome e e-mail.");
+      return;
+    }
+
+    if (!formData.gender) {
+      setSubmitError("Selecione o sexo.");
+      return;
+    }
+
+    if (!formData.shirtSize) {
+      setSubmitError("Selecione o tamanho da camisa.");
       return;
     }
 
@@ -130,8 +167,11 @@ export const Registrations = () => {
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
         acceptedTerms: true,
+        cpf: formData.cpf.trim() || undefined,
         birthDate: formData.birthDate || undefined,
         phone: formData.phone || undefined,
+        gender: formData.gender || undefined,
+        shirtSize: formData.shirtSize || undefined,
       });
 
       navigate(`/payment/${response.registrationId}`, {
@@ -239,31 +279,73 @@ export const Registrations = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Data de nascimento
-              </label>
-              <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Data de nascimento
+                </label>
+                <input
+                  type="date"
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Telefone
+                </label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+                  placeholder="Digite seu telefone"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Telefone
-              </label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-                placeholder="Digite seu telefone"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Sexo *
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500 bg-white"
+                >
+                  <option value="">Selecione</option>
+                  {genderOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tamanho da camisa *
+                </label>
+                <select
+                  name="shirtSize"
+                  value={formData.shirtSize}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500 bg-white"
+                >
+                  <option value="">Selecione</option>
+                  {shirtSizeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <button
