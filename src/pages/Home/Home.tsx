@@ -93,9 +93,9 @@ export const Home = () => {
               className="bg-white rounded-xl shadow-sm border border-[#F83B45] cursor-pointer hover:shadow-md transition w-full"
             >
               <div className="h-40 flex items-center justify-center rounded-t-xl overflow-hidden">
-                {event.coverUrl || event.imageUrl ? (
+                {event.coverUrl ? (
                   <img
-                    src={event.coverUrl || event.imageUrl}
+                    src={event.coverUrl}
                     alt={event.title}
                     className="h-full w-full object-cover"
                   />

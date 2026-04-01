@@ -65,8 +65,8 @@ export const EventDetails = () => {
         } else if (eventData.coverUrl) {
           setSelectedImage(eventData.coverUrl);
           setSelectedImageDescription(null);
-        } else if (eventData.imageUrl) {
-          setSelectedImage(eventData.imageUrl);
+        } else {
+          setSelectedImage(null);
           setSelectedImageDescription(null);
         }
       } catch (err) {
@@ -128,7 +128,7 @@ export const EventDetails = () => {
   };
 
   const handleEditEvent = () => {
-    navigate(`/admin/events/edit/${id}`);
+    navigate(`/admin/eventos/editar/${id}`);
   };
 
   if (loading) {

@@ -1,6 +1,14 @@
 import { api } from "../api/api";
 import { Event, EventOption } from "../types";
 
+type CreateEventPayload = {
+  title: string;
+  description: string | null;
+  location: string | null;
+  startDate: string;
+  endDate: string;
+};
+
 type UpdateEventPayload = {
   title: string;
   description: string | null;
@@ -39,6 +47,11 @@ export const eventService = {
 
   getOptionsByEvent: async (eventId: string): Promise<EventOption[]> => {
     const response = await api.get(`/event-options/event/${eventId}`);
+    return response.data;
+  },
+
+  create: async (data: CreateEventPayload) => {
+    const response = await api.post("/events", data);
     return response.data;
   },
 

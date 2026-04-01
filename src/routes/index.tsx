@@ -5,8 +5,14 @@ import { EventDetails } from "../pages/EventDetails/EventDetails";
 import { Registrations } from "../pages/Registrations/Registrations";
 import { MyAccount } from "../pages/MyAccount/MyAccount";
 import { MyRegistrations } from "../pages/MyRegistrations/MyRegistrations";
-import { AdminEditEvent } from "../pages/AdminEditEvent/AdminEditEvent";
 import { UserRegister } from "../pages/UserRegister/UserRegister";
+
+import { AdminLayout } from "../admin/AdminLayout";
+import { AdminDashboard } from "../admin/AdminDashboard/AdminDashboard";
+import { AdminEvents } from "../admin/AdminEvents/AdminEvents";
+import { AdminCreateEvent } from "../admin/AdminCreateEvent/AdminCreateEvent";
+import { AdminEditEvent } from "../admin/AdminEditEvent/AdminEditEvent";
+import AdminEventParticipants from "../admin/AdminEventParticipants/AdminEventParticipants";
 
 type StoredUser = {
   id?: string;
@@ -96,13 +102,22 @@ export const AppRoutes = () => {
 
       {/* admin */}
       <Route
-        path="/admin/events/edit/:id"
+        path="/admin"
         element={
           <AdminRoute>
-            <AdminEditEvent />
+            <AdminLayout />
           </AdminRoute>
         }
-      />
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="eventos" element={<AdminEvents />} />
+        <Route path="eventos/novo" element={<AdminCreateEvent />} />
+        <Route path="eventos/editar/:id" element={<AdminEditEvent />} />
+        <Route
+          path="eventos/:eventId/participantes"
+          element={<AdminEventParticipants />}
+        />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

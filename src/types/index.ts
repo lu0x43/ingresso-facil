@@ -20,10 +20,20 @@ export interface Event {
   endDate: string;
   description?: string;
   location?: string;
-  coverUrl?: string;
-  imageUrl?: string;
+  coverUrl?: string; // Usado na listagem da Home
   organizerId?: string;
   createdAt?: string;
-  options?: EventOption[];
-  images?: EventImage[];
+  options?: EventOption[]; // Usado nos detalhes
+  images?: EventImage[];   // Usado no carrossel de detalhes
+}
+
+export interface EventParticipant {
+  registrationId: string;
+  userId: string;
+  fullName: string;
+  email: string;
+  cpf: string;
+  categoryName: string;
+  paymentStatus: string;
+  registrationCreatedAt: string;
 }

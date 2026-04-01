@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { User, LogIn, X } from "lucide-react";
+import { User, LogIn, X, Settings, Ticket, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import LogoRed from "../../assets/icons/icon-corpus-red.svg";
 import { useAuthModal } from "../../contexts/AuthModalContext";
@@ -119,7 +119,7 @@ const Header = () => {
                 type="button"
               >
                 <User size={18} />
-                {user.name.split(" ")[0]}
+                {user.name.split(" ").slice(0, 2).join(" ")}
               </button>
 
               {openMenu && (
@@ -129,9 +129,10 @@ const Header = () => {
                       navigate("/minha-conta");
                       setOpenMenu(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                    className="w-full flex flex-row items-center gap-2 text-left px-4 py-2 hover:bg-gray-100 text-sm"
                     type="button"
                   >
+                    <User size={18} />
                     Minha conta
                   </button>
 
@@ -140,17 +141,33 @@ const Header = () => {
                       navigate("/minhas-inscricoes");
                       setOpenMenu(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                    className="w-full flex flex-row items-center gap-2 text-left px-4 py-2 hover:bg-gray-100 text-sm"
                     type="button"
                   >
+                    <Ticket size={18} />
                     Minhas inscrições
                   </button>
 
+                  {/* todo colocar divider */}
                   <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                    onClick={() => {
+                      navigate("/admin");
+                      setOpenMenu(false);
+                    }}
+                    className="w-full flex flex-row items-center gap-2 text-left px-4 py-2 hover:bg-gray-100 text-sm capitalize"
                     type="button"
                   >
+                    <Settings size={18} />
+                    painel administrativo
+                  </button>
+                  {/* todo colocar divider */}
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex flex-row items-center gap-2 text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                    type="button"
+                  >
+                    <LogOut size={18} />
                     Sair
                   </button>
                 </div>
