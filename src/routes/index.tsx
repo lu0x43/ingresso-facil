@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+
 import { Home } from "../pages/Home/Home";
 import { Dashboard } from "../pages/Dashboard/Dashboard";
 import { EventDetails } from "../pages/EventDetails/EventDetails";
@@ -14,37 +16,16 @@ import { AdminCreateEvent } from "../admin/AdminCreateEvent/AdminCreateEvent";
 import { AdminEditEvent } from "../admin/AdminEditEvent/AdminEditEvent";
 import AdminEventParticipants from "../admin/AdminEventParticipants/AdminEventParticipants";
 
-type StoredUser = {
-  id?: string;
-  name?: string;
-  email?: string;
-  role?: string;
-};
-
-const getStoredUser = (): StoredUser | null => {
-  const raw = localStorage.getItem("user");
-
-  if (!raw) return null;
-
-  try {
-    return JSON.parse(raw) as StoredUser;
-  } catch {
-    localStorage.removeItem("user");
-    return null;
-  }
-};
-
 const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
-  const token = localStorage.getItem("token");
+  const { isAuthenticated } = useAuth();
 
-  return token ? children : <Navigate to="/" replace />;
+  return isAuthenticated ? children : <Navigate to="/" replace />;
 };
 
 const AdminRoute = ({ children }: { children: React.ReactElement }) => {
-  const token = localStorage.getItem("token");
-  const user = getStoredUser();
+  const { isAuthenticated, user } = useAuth();
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 

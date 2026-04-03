@@ -49,23 +49,30 @@ export const MyAccount = () => {
 
         <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <p className="text-sm text-gray-500 mb-1">Nome</p>
+            <p className="text-sm text-gray-500 font-semibold mb-1">Nome</p>
             <div className="w-full rounded-lg border border-gray-300 px-4 py-3 bg-gray-50 text-gray-900">
               {user.name}
             </div>
           </div>
 
           <div>
-            <p className="text-sm text-gray-500 mb-1">E-mail</p>
+            <p className="text-sm text-gray-500 font-semibold mb-1">E-mail</p>
             <div className="w-full rounded-lg border border-gray-300 px-4 py-3 bg-gray-50 text-gray-900">
               {user.email}
             </div>
           </div>
 
           <div>
-            <p className="text-sm text-gray-500 mb-1">Perfil</p>
+            <p className="text-sm text-gray-500 font-semibold mb-1">Perfil</p>
             <div className="w-full rounded-lg border border-gray-300 px-4 py-3 bg-gray-50 text-gray-900">
               { user.role === "admin" ? "Administrador" : "Usuário" }
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500 font-semibold mb-1">Senha</p>
+            <div className="w-full flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-3 bg-gray-50 text-gray-400  font-semibold">
+              { "Alterar senha ( em breve )" }
             </div>
           </div>
         </div>

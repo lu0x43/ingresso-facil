@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
+import { toast } from "react-hot-toast";
 
 export const UserRegister = () => {
   const navigate = useNavigate();
@@ -10,89 +11,86 @@ export const UserRegister = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    cpf: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const formatCpf = (value: string) => {
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
+
+    return numbers
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    if (name === "cpf") {
+      setFormData((prev) => ({
+        ...prev,
+        cpf: formatCpf(value),
+      }));
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-
-    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (submitting) return;
-
+  
     if (!formData.name.trim()) {
-      setError("Nome é obrigatório.");
+      toast.error("Nome é obrigatório.");
       return;
     }
-
+  
     if (!formData.email.trim()) {
-      setError("E-mail é obrigatório.");
+      toast.error("E-mail é obrigatório.");
       return;
     }
-
+  
     if (!formData.password.trim()) {
-      setError("Senha é obrigatória.");
+      toast.error("Senha é obrigatória.");
       return;
     }
-
+  
     if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não conferem.");
+      toast.error("As senhas não conferem.");
       return;
     }
-
+  
+    const cpfRaw = formData.cpf.replace(/\D/g, "");
+  
+    if (cpfRaw.length !== 11) {
+      toast.error("CPF inválido.");
+      return;
+    }
+  
     try {
       setSubmitting(true);
-      setError(null);
-      setSuccess(null);
-
+  
       await api.post("/auth/register", {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
+        cpf: cpfRaw,
       });
-
-      setSuccess("Conta criada com sucesso. Agora você já pode entrar.");
-
+  
+      toast.success("Conta criada com sucesso!");
+  
       setTimeout(() => {
         navigate("/");
-      }, 1500);
+      }, 1200);
     } catch (err: unknown) {
       console.error(err);
-
-      if (typeof err === "object" && err !== null && "response" in err) {
-        const errorResponse = err as {
-          response?: {
-            status?: number;
-            data?: { error?: string };
-          };
-        };
-
-        if (errorResponse.response?.data?.error) {
-          setError(errorResponse.response.data.error);
-          return;
-        }
-
-        if (errorResponse.response?.status === 409) {
-          setError("Este e-mail já está cadastrado.");
-          return;
-        }
-      }
-
-      setError("Não foi possível criar sua conta.");
     } finally {
       setSubmitting(false);
     }
@@ -100,104 +98,57 @@ export const UserRegister = () => {
 
   return (
     <section className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Criar conta</h1>
-          <p className="text-gray-500 mt-2">
-            Cadastre-se para se inscrever nos eventos.
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {success}
-          </div>
-        )}
+      <div className="w-full max-w-md bg-white rounded-2xl border p-8">
+        <h1 className="text-2xl font-bold mb-6 text-center">Criar conta</h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome completo
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-              placeholder="Digite seu nome"
-            />
-          </div>
+          <input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Nome completo"
+            className="w-full border px-4 py-3 rounded"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              E-mail
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-              placeholder="Digite seu e-mail"
-            />
-          </div>
+          <input
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="E-mail"
+            className="w-full border px-4 py-3 rounded"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Senha
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-              placeholder="Crie uma senha"
-            />
-            <p className="mt-2 text-xs text-gray-500">
-              Mínimo de 8 caracteres, com maiúscula, minúscula, número e símbolo.
-            </p>
-          </div>
+          <input
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+            placeholder="CPF"
+            className="w-full border px-4 py-3 rounded"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Confirmar senha
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-              placeholder="Repita sua senha"
-            />
-          </div>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Senha"
+            className="w-full border px-4 py-3 rounded"
+          />
+
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirmar senha"
+            className="w-full border px-4 py-3 rounded"
+          />
 
           <button
-            type="submit"
             disabled={submitting}
-            className={`w-full rounded-lg py-3 font-semibold text-white transition-colors ${
-              submitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700"
-            }`}
+            className="w-full bg-red-600 text-white py-3 rounded"
           >
-            {submitting ? "Criando conta..." : "Criar conta"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="w-full text-sm text-gray-600 hover:text-red-600"
-          >
-            Voltar para o início
+            {submitting ? "Criando..." : "Criar conta"}
           </button>
         </form>
       </div>

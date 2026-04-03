@@ -1,5 +1,7 @@
 import { AppRoutes } from "./routes";
 import { Header } from "./components";
+import { Toaster } from "react-hot-toast";
+
 import "./App.css";
 
 function App() {
@@ -12,6 +14,8 @@ function App() {
       </main>
 
       {/* todo Aqui adicionar um Footer no futuro */}
+      
+      <Toaster position="top-right" />
     </div>
   );
 }
