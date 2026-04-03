@@ -4,13 +4,6 @@ import { eventService } from "../../services/eventService";
 import { useAuthModal } from "../../contexts/AuthModalContext";
 import { Event, EventOption } from "../../types";
 
-type StoredUser = {
-  id?: string;
-  name?: string;
-  email?: string;
-  role?: string;
-};
-
 export const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -24,20 +17,6 @@ export const EventDetails = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [currentUser, setCurrentUser] = useState<StoredUser | null>(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if (storedUser) {
-      try {
-        setCurrentUser(JSON.parse(storedUser) as StoredUser);
-      } catch {
-        localStorage.removeItem("user");
-      }
-    }
-  }, []);
 
   useEffect(() => {
     const loadEventDetails = async () => {
@@ -79,8 +58,6 @@ export const EventDetails = () => {
 
     loadEventDetails();
   }, [id]);
-
-  const isAdmin = currentUser?.role?.toLowerCase() === "admin";
 
   const selectedOption = useMemo(
     () => options.find((option) => option.id === selectedOptionId) || null,
@@ -125,10 +102,6 @@ export const EventDetails = () => {
         selectedOption,
       },
     });
-  };
-
-  const handleEditEvent = () => {
-    navigate(`/admin/eventos/editar/${id}`);
   };
 
   if (loading) {
@@ -207,16 +180,6 @@ export const EventDetails = () => {
 
               <div className="mt-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
-
-                {isAdmin && (
-                  <button
-                    onClick={handleEditEvent}
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50"
-                  >
-                    Editar evento
-                  </button>
-                )}
               </div>
 
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
