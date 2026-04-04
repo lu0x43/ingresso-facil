@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
-import { toast } from "react-hot-toast";
+import { showSuccess, showError, showWarning } from "../../lib/toast";
 
 export const UserRegister = () => {
   const navigate = useNavigate();
@@ -48,29 +48,29 @@ export const UserRegister = () => {
     if (submitting) return;
   
     if (!formData.name.trim()) {
-      toast.error("Nome é obrigatório.");
+      showWarning("Nome é obrigatório.");
       return;
     }
   
     if (!formData.email.trim()) {
-      toast.error("E-mail é obrigatório.");
+      showWarning("E-mail é obrigatório.");
       return;
     }
   
     if (!formData.password.trim()) {
-      toast.error("Senha é obrigatória.");
+      showWarning("Senha é obrigatória.");
       return;
     }
   
     if (formData.password !== formData.confirmPassword) {
-      toast.error("As senhas não conferem.");
+      showWarning("As senhas não conferem.");
       return;
     }
   
     const cpfRaw = formData.cpf.replace(/\D/g, "");
   
     if (cpfRaw.length !== 11) {
-      toast.error("CPF inválido.");
+      showError("CPF inválido.");
       return;
     }
   
@@ -84,7 +84,7 @@ export const UserRegister = () => {
         cpf: cpfRaw,
       });
   
-      toast.success("Conta criada com sucesso!");
+      showSuccess("Conta criada com sucesso!");
   
       setTimeout(() => {
         navigate("/");

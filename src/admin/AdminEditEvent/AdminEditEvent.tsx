@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { eventService } from "../../services/eventService";
 import { EventOption } from "../../types";
+import { showSuccess } from "../../lib/toast";
 
 type EventFormData = {
   title: string;
@@ -152,6 +153,7 @@ export const AdminEditEvent = () => {
       });
 
       setFlashMessage("Evento atualizado com sucesso.");
+      showSuccess("Evento atualizado com sucesso.");
     } catch (err) {
       console.error("Erro ao atualizar evento:", err);
       setError("Não foi possível atualizar o evento.");
@@ -206,6 +208,7 @@ export const AdminEditEvent = () => {
       );
 
       setFlashMessage("Opção atualizada com sucesso.");
+      showSuccess("Opção atualizada com sucesso.");
     } catch (err) {
       console.error("Erro ao atualizar opção:", err);
       setError("Não foi possível atualizar a opção.");
@@ -231,6 +234,7 @@ export const AdminEditEvent = () => {
       });
 
       setFlashMessage("Opção removida com sucesso.");
+      showSuccess("Opção removida com sucesso.");
     } catch (err) {
       console.error("Erro ao remover opção:", err);
       setError("Não foi possível remover a opção.");
@@ -294,6 +298,7 @@ export const AdminEditEvent = () => {
       });
 
       setFlashMessage(created?.message ?? "Opção criada com sucesso.");
+      showSuccess(created?.message ?? "Opção criada com sucesso.");
     } catch (err) {
       console.error("Erro ao criar opção:", err);
       setError("Não foi possível criar a opção.");

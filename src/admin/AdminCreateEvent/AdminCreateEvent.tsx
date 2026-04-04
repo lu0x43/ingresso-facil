@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { eventService } from "../../services/eventService";
+import { showSuccess } from "../../lib/toast";
 
 export const AdminCreateEvent = () => {
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ export const AdminCreateEvent = () => {
 
       const createdId = response?.id || response?.Id;
 
+      showSuccess("Evento criado com sucesso.");
+
       if (createdId) {
         navigate(`/admin/eventos/editar/${createdId}`);
         return;
@@ -65,6 +68,8 @@ export const AdminCreateEvent = () => {
       navigate("/admin/eventos");
     } catch (err) {
       console.error("Erro ao criar evento:", err);
+
+      // opcional (reforço visual no form)
       setError("Não foi possível criar o evento.");
     } finally {
       setSubmitting(false);

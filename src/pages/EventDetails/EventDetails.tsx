@@ -1,13 +1,18 @@
+import { useAuth } from "../../contexts/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { eventService } from "../../services/eventService";
+import { showWarning } from "../../lib/toast";
 import { useAuthModal } from "../../contexts/AuthModalContext";
 import { Event, EventOption } from "../../types";
+
+const PENDING_REGISTRATION_KEY = "pending_registration_intent";
 
 export const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { openLogin } = useAuthModal();
+  const { isAuthenticated } = useAuth();
 
   const [event, setEvent] = useState<Event | null>(null);
   const [options, setOptions] = useState<EventOption[]>([]);
@@ -59,6 +64,38 @@ export const EventDetails = () => {
     loadEventDetails();
   }, [id]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !id || options.length === 0) return;
+  
+    const rawIntent = sessionStorage.getItem(PENDING_REGISTRATION_KEY);
+    if (!rawIntent) return;
+  
+    try {
+      const intent = JSON.parse(rawIntent) as {
+        eventId?: string;
+        optionId?: string;
+      };
+  
+      if (intent.eventId !== id || !intent.optionId) {
+        sessionStorage.removeItem(PENDING_REGISTRATION_KEY);
+        return;
+      }
+  
+      const optionExists = options.some((option) => option.id === intent.optionId);
+  
+      if (!optionExists) {
+        sessionStorage.removeItem(PENDING_REGISTRATION_KEY);
+        showWarning("A opção selecionada não está mais disponível.");
+        return;
+      }
+  
+      sessionStorage.removeItem(PENDING_REGISTRATION_KEY);
+      continueRegistration(intent.optionId);
+    } catch {
+      sessionStorage.removeItem(PENDING_REGISTRATION_KEY);
+    }
+  }, [isAuthenticated, id, options]);
+
   const selectedOption = useMemo(
     () => options.find((option) => option.id === selectedOptionId) || null,
     [options, selectedOptionId]
@@ -84,22 +121,40 @@ export const EventDetails = () => {
       currency: "BRL",
     }).format(value);
 
-  const handleRegister = () => {
-    const token = localStorage.getItem("token");
+    const handleRegister = () => {
+      if (!selectedOptionId) {
+        showWarning("Selecione uma opção de inscrição.");
+        return;
+      }
+    
+      if (!isAuthenticated) {
+        sessionStorage.setItem(
+          PENDING_REGISTRATION_KEY,
+          JSON.stringify({
+            eventId: id,
+            optionId: selectedOptionId,
+          })
+        );
+    
+        showWarning("Faça login para continuar a inscrição.");
+        openLogin();
+        return;
+      }
+    
+      continueRegistration(selectedOptionId);
+    };
 
-    if (!token) {
-      openLogin();
+  const continueRegistration = (optionId: string) => {
+    const option = options.find((item) => item.id === optionId);
+  
+    if (!option || !id) {
+      showWarning("Selecione uma opção de inscrição.");
       return;
     }
-
-    if (!selectedOption) {
-      alert("Selecione uma opção de inscrição.");
-      return;
-    }
-
+  
     navigate(`/register-event/${id}`, {
       state: {
-        selectedOption,
+        selectedOption: option,
       },
     });
   };

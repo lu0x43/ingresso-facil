@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { toast } from "react-hot-toast";
+import { showError } from "../lib/toast";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -63,6 +63,8 @@ export const api = axios.create({
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem("token");
 
+  config.headers = config.headers ?? {};
+
   if (token && token !== "null") {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -90,10 +92,10 @@ api.interceptors.response.use(
       }
 
       if (shouldShowToast && status !== 401) {
-        toast.error(getErrorMessage(error));
+        showError(getErrorMessage(error));
       }
     } else {
-      toast.error("Erro inesperado.");
+      showError("Erro inesperado.");
     }
 
     return Promise.reject(error);

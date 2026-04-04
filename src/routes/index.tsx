@@ -8,7 +8,7 @@ import { Registrations } from "../pages/Registrations/Registrations";
 import { MyAccount } from "../pages/MyAccount/MyAccount";
 import { MyRegistrations } from "../pages/MyRegistrations/MyRegistrations";
 import { UserRegister } from "../pages/UserRegister/UserRegister";
-
+import { Payment } from "../pages/Payment/Payment";
 import { AdminLayout } from "../admin/AdminLayout";
 import { AdminDashboard } from "../admin/AdminDashboard/AdminDashboard";
 import { AdminEvents } from "../admin/AdminEvents/AdminEvents";
@@ -68,6 +68,15 @@ export const AppRoutes = () => {
         element={
           <PrivateRoute>
             <Registrations />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/payment/:id"
+        element={
+          <PrivateRoute>
+            <Payment />
           </PrivateRoute>
         }
       />

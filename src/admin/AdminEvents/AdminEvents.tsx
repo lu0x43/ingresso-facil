@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { eventService } from "../../services/eventService";
 import { Event } from "../../types";
+import { showSuccess } from "../../lib/toast";
 
 export const AdminEvents = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export const AdminEvents = () => {
 
       await eventService.delete(eventId);
       setEvents((prev) => prev.filter((event) => event.id !== eventId));
+      showSuccess("Evento removido com sucesso.");
     } catch (err) {
       console.error("Erro ao remover evento:", err);
       setError("Não foi possível remover o evento.");

@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { eventService } from "../../services/eventService";
 import { registrationService } from "../../services/registrationService";
 import { Event, EventOption } from "../../types";
+import { showError, showWarning } from "../../lib/toast";
 
 type StoredUser = {
   id?: string;
@@ -49,9 +50,7 @@ export const Registrations = () => {
   const selectedOptionFromState = state?.selectedOption ?? null;
 
   const [event, setEvent] = useState<Event | null>(null);
-  const [selectedOption, setSelectedOption] = useState<EventOption | null>(
-    selectedOptionFromState
-  );
+  const [selectedOption, setSelectedOption] = useState<EventOption | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -73,11 +72,6 @@ export const Registrations = () => {
       if (!id) {
         setError("Evento não encontrado.");
         setLoading(false);
-        return;
-      }
-
-      if (!selectedOptionFromState) {
-        navigate(`/event-details/${id}`, { replace: true });
         return;
       }
 
@@ -105,7 +99,27 @@ export const Registrations = () => {
 
         const eventData = await eventService.getById(id);
         setEvent(eventData);
-        setSelectedOption(selectedOptionFromState);
+
+        const eventOptions = eventData.options ?? [];
+
+        if (eventOptions.length === 0) {
+          setError("Este evento não possui opções de inscrição disponíveis.");
+          return;
+        }
+
+        if (selectedOptionFromState) {
+          const matchedOption = eventOptions.find(
+            (option) => option.id === selectedOptionFromState.id
+          );
+
+          if (matchedOption) {
+            setSelectedOption(matchedOption);
+          } else {
+            setSelectedOption(eventOptions[0]);
+          }
+        } else {
+          setSelectedOption(eventOptions[0]);
+        }
       } catch (err) {
         console.error("Erro ao carregar dados da inscrição:", err);
         setError("Não foi possível carregar os dados da inscrição.");
@@ -115,8 +129,7 @@ export const Registrations = () => {
     };
 
     loadPage();
-  }, [id, navigate, selectedOptionFromState]);
-
+  }, [id, selectedOptionFromState]);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -174,12 +187,18 @@ export const Registrations = () => {
         shirtSize: formData.shirtSize || undefined,
       });
 
+      if (!response?.registrationId) {
+        setSubmitError("Não foi possível iniciar o pagamento.");
+        showWarning("Não foi possível iniciar o pagamento.");
+        return;
+      }
+
       navigate(`/payment/${response.registrationId}`, {
         state: response.pixData,
       });
     } catch (err) {
-      console.error(err);
-      setSubmitError("Não foi possível continuar para o pagamento.");
+      console.error("Erro ao criar inscrição:", err);
+      showError("Não foi possível criar a inscrição.");
     } finally {
       setSubmitting(false);
     }
@@ -382,7 +401,9 @@ export const Registrations = () => {
           <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
             <div>
               <p className="text-sm text-gray-500">Opção escolhida</p>
-              <p className="font-semibold text-gray-900">{selectedOption.name}</p>
+              <p className="font-semibold text-gray-900">
+                {selectedOption.name}
+              </p>
             </div>
 
             {selectedOption.category && (

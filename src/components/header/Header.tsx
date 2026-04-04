@@ -6,7 +6,7 @@ import LogoRed from "../../assets/icons/icon-corpus-red.svg";
 import { useAuthModal } from "../../contexts/AuthModalContext";
 import { api } from "../../api/api";
 import { useAuth } from "../../contexts/AuthContext";
-import toast from "react-hot-toast";
+import { showSuccess, showError, showWarning } from "../../lib/toast";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -21,12 +21,6 @@ const Header = () => {
 
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-
-  const showFeedback = (message: string) => {
-    setFeedbackMessage(message);
-    setTimeout(() => setFeedbackMessage(null), 2500);
-  };
 
   const resetLoginForm = () => {
     setEmail("");
@@ -39,7 +33,7 @@ const Header = () => {
     setOpenMenu(false);
     closeModal();
     resetLoginForm();
-    toast.success("Logout realizado com sucesso.");
+    showError("Logout realizado com sucesso.");
     navigate("/");
   };
 
@@ -74,7 +68,7 @@ const Header = () => {
       setOpenMenu(false);
       closeModal();
 
-      toast.success("Logout realizado com sucesso.");
+      showSuccess("Login realizado com sucesso.");
     } catch (err: unknown) {
       if (axios.isAxiosError<{ error?: string }>(err)) {
         if (err.response?.status === 401) {
@@ -107,7 +101,7 @@ const Header = () => {
       setOpenMenu(false);
       closeModal();
       resetLoginForm();
-      showFeedback("Sua sessão expirou. Faça login novamente.");
+      showWarning("Sua sessão expirou. Faça login novamente.");
       navigate("/");
     };
 
@@ -128,12 +122,6 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-4" ref={wrapperRef}>
-          {feedbackMessage && (
-            <div className="hidden md:block bg-white px-3 py-2 text-sm shadow rounded">
-              {feedbackMessage}
-            </div>
-          )}
-
           {isAuthenticated && user ? (
             <div className="relative">
               <button
