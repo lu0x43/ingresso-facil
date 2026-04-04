@@ -16,14 +16,30 @@ import { AdminCreateEvent } from "../admin/AdminCreateEvent/AdminCreateEvent";
 import { AdminEditEvent } from "../admin/AdminEditEvent/AdminEditEvent";
 import AdminEventParticipants from "../admin/AdminEventParticipants/AdminEventParticipants";
 
+const RouteLoading = () => {
+  return (
+    <div className="flex justify-center items-center min-h-[60vh]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+    </div>
+  );
+};
+
 const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAuthLoading } = useAuth();
+
+  if (isAuthLoading) {
+    return <RouteLoading />;
+  }
 
   return isAuthenticated ? children : <Navigate to="/" replace />;
 };
 
 const AdminRoute = ({ children }: { children: React.ReactElement }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isAuthLoading, user } = useAuth();
+
+  if (isAuthLoading) {
+    return <RouteLoading />;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;

@@ -92,7 +92,7 @@ export const Home = () => {
               onClick={() => navigate(`/event-details/${event.id}`)}
               className="bg-white rounded-xl shadow-sm border border-[#F83B45] cursor-pointer hover:shadow-md transition w-full"
             >
-              <div className="h-40 flex items-center justify-center rounded-t-xl overflow-hidden">
+              <div className="h-50 flex items-center justify-center rounded-t-xl overflow-hidden">
                 {event.coverUrl ? (
                   <img
                     src={event.coverUrl}
@@ -100,9 +100,14 @@ export const Home = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-4xl font-bold text-gray-300 bg-gray-400 w-full h-full flex items-center justify-center rounded-t-xl">
-                    {event.title.charAt(0).toUpperCase()}
-                  </span>
+                  <img
+                    src="../../assets/images/cover-corrida-corpus-2026.png"
+                    alt={event.title}
+                    className="h-full w-full object-cover"
+                  />
+                  // <span className="text-4xl font-bold text-gray-300 bg-gray-400 w-full h-full flex items-center justify-center rounded-t-xl">
+                  //   {event.title.charAt(0).toUpperCase()}
+                  // </span>
                 )}
               </div>
 

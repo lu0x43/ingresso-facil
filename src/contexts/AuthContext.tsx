@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { api } from "../api/api";
 
 type StoredUser = {
   id?: string;
@@ -23,6 +24,7 @@ type AuthContextType = {
   token: string | null;
   user: StoredUser | null;
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   login: (payload: LoginPayload) => void;
   logout: () => void;
   syncAuth: () => void;
@@ -54,6 +56,8 @@ export const AuthProvider = ({
 
   const [user, setUser] = useState<StoredUser | null>(() => getStoredUser());
 
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
   const syncAuth = useCallback(() => {
     setToken(localStorage.getItem("token"));
     setUser(getStoredUser());
@@ -76,6 +80,41 @@ export const AuthProvider = ({
   }, []);
 
   useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token || token === "null") {
+        logout();
+        setIsAuthLoading(false);
+        return;
+      }
+
+      try {
+        const res = await api.get("/users/me", {
+          showErrorToast: false,
+        });
+
+        const backendUser = {
+          id: res.data.id ?? res.data.Id,
+          name: res.data.name ?? res.data.Name,
+          email: res.data.email ?? res.data.Email,
+          role: res.data.role ?? res.data.Role,
+        };
+
+        localStorage.setItem("user", JSON.stringify(backendUser));
+        setUser(backendUser);
+        setToken(token);
+      } catch {
+        logout();
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    initAuth();
+  }, [logout]);
+
+  useEffect(() => {
     const handleAuthChanged = () => syncAuth();
     const handleAuthExpired = () => logout();
 
@@ -93,11 +132,12 @@ export const AuthProvider = ({
       token,
       user,
       isAuthenticated: !!token && !!user,
+      isAuthLoading,
       login,
       logout,
       syncAuth,
     }),
-    [token, user, login, logout, syncAuth]
+    [token, user, isAuthLoading, login, logout, syncAuth]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
